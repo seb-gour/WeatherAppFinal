@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/menu_meteo"
+            android:icon="@drawable/ic_action_loc"
+            android:title="@string/meteo_gps" />
+        <item
+            android:id="@+id/menu_recherche"
+            android:icon="@drawable/ic_action_search"
+            android:title="@string/recherche" />
+        <item
+            android:id="@+id/menu_favoris"
+            android:icon="@drawable/ic_action_favoris"
+            android:title="@string/favoris" />
+    </group>
+
+</menu>

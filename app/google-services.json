@@ -1,0 +1,44 @@
+{
+  "project_info": {
+    "project_number": "175842976685",
+    "firebase_url": "https://weatherapp-74bbc.firebaseio.com",
+    "project_id": "weatherapp-74bbc",
+    "storage_bucket": "weatherapp-74bbc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:175842976685:android:96b755fa5eab8078",
+        "android_client_info": {
+          "package_name": "com.miage.weatherapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "175842976685-v1sl07r8ckvs2lp11tu8ioogvggbseq1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.miage.weatherapp",
+            "certificate_hash": "fd6dfb1b3c7f9822aa9ff7178e91111ea949b917"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFBfY8W2T1aW8G3WUnVPlAKQxWVnjcIc4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "175842976685-83crq2s2oujvn0eu2q05runtq1dbtndi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

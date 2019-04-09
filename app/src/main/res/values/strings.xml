@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">WeatherApp</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Application Météo</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+    <string name="default_web_client_id">175842976685-83crq2s2oujvn0eu2q05runtq1dbtndi.apps.googleusercontent.com</string>
+    <string name="title_favoris">Favoris</string>
+    <string name="meteo_gps">Météo GPS</string>
+    <string name="recherche">Recherche</string>
+    <string name="favoris">Favoris</string>
+</resources>
