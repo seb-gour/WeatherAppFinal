@@ -9,10 +9,14 @@ public class Liste_Favoris {
     public ArrayList<City_Favoris> list;
 
     public Liste_Favoris() {
-        this.list = new ArrayList<>();
+        this.list = new ArrayList<City_Favoris>();
     }
 
     public Liste_Favoris(ArrayList<City_Favoris> list) {
-        this.list = list;
+        if(list == null) {
+            list = new ArrayList<City_Favoris>();
+        } else {
+            this.list = list;
+        }
     }
 }

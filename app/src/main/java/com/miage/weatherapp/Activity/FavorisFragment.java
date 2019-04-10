@@ -1,45 +1,31 @@
 package com.miage.weatherapp.Activity;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.miage.weatherapp.DTO.City_Favoris;
-import com.miage.weatherapp.DTO.City_info;
-import com.miage.weatherapp.DTO.DonneesMeteo;
 import com.miage.weatherapp.DTO.Liste_Favoris;
 import com.miage.weatherapp.R;
-import com.squareup.picasso.Picasso;
-
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 
 public class FavorisFragment extends Fragment {
 
     public static Liste_Favoris favoris;
     ValueEventListener favorisListener;
     ListView listView;
-    ListViewFavorisAdapter adapter;
+    public static ListViewFavorisAdapter adapter;
     private String tmp;
     private String icon;
 
@@ -54,15 +40,29 @@ public class FavorisFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        Toolbar mActionBarToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+        mActionBarToolbar.setTitle("Favoris");
+
         listView = (ListView) view.findViewById(R.id.listView);
 
         if (MainActivity.mAuth.getCurrentUser() != null) {
-            favorisListener = new ValueEventListener() {
+            MainActivity.mDatabase.addListenerForSingleValueEvent(
+                    new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            favoris = dataSnapshot.getValue(Liste_Favoris.class);
+                            createListViewFavoris();
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                        }
+                    });
+            /*favorisListener = new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     favoris = dataSnapshot.getValue(Liste_Favoris.class);
                     createListViewFavoris();
-                    adapter.notifyDataSetChanged();
                 }
 
                 @Override
@@ -72,18 +72,18 @@ public class FavorisFragment extends Fragment {
                     // ...
                 }
             };
-            MainActivity.mDatabase.addValueEventListener(favorisListener);
+            MainActivity.mDatabase.addValueEventListener(favorisListener);*/
 
         }
     }
 
     public void createListViewFavoris() {
         if(favoris != null) {
-            ArrayList<City_Favoris> city_list = new ArrayList<>();
+            /*ArrayList<City_Favoris> city_list = new ArrayList<>();
             for (City_Favoris city: favoris.list) {
                 city_list.add(getTempFromCityName(city));
-            }
-            adapter = new ListViewFavorisAdapter(getContext(),0,city_list);
+            }*/
+            adapter = new ListViewFavorisAdapter(getContext(),0,favoris.list);
             listView.setAdapter(adapter);
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -116,25 +116,52 @@ public class FavorisFragment extends Fragment {
                 });
     }
 
-    public static void addCityFavorisMeteo(String city, String city_url) {
-        favoris.list.add(new City_Favoris(city, city_url));
+    public static void addCityFavorisMeteo(Context c, City_Favoris city) {
+        if(favoris == null) {
+            favoris = new Liste_Favoris();
+        }
+        favoris.list.add(city);
         MainActivity.mDatabase.setValue(favoris);
+
+        showAlert(c, "Ville " + city.name + " ajouté aux favoris!");
     }
 
-    public static void removeCityFavorisMeteo(City_Favoris city) {
-        int i = -1;
-        for (City_Favoris city_fav:favoris.list) {
-            if(city_fav.name.equals(city.name) && city_fav.name_url.equals(city.name_url)) {
-                i = favoris.list.indexOf(city_fav);
+    public static void removeCityFavorisMeteo(Context c, City_Favoris city) {
+        if(favoris.list != null) {
+            int i = -1;
+            for (City_Favoris city_fav : favoris.list) {
+                if (city_fav.name.equals(city.name) && city_fav.name_url.equals(city.name_url)) {
+                    i = favoris.list.indexOf(city_fav);
+                }
             }
-        };
-        if(i != -1) {
-            favoris.list.remove(i);
-            MainActivity.mDatabase.setValue(favoris);
+            if (i != -1) {
+                favoris.list.remove(i);
+                MainActivity.mDatabase.setValue(favoris);
+            }
+            if(adapter != null) {
+                adapter.notifyDataSetChanged();
+            }
+            showAlert(c, "Ville " + city.name + " supprimé des favoris!");
         }
     }
 
-    public City_Favoris getTempFromCityName(City_Favoris city) {
+    public static void showAlert(Context c, String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(c);
+        builder.setMessage(message);
+        builder.setCancelable(true);
+
+        builder.setPositiveButton(
+                "Ok",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    /*public City_Favoris getTempFromCityName(City_Favoris city) {
         RequestQueue mQ= Volley.newRequestQueue(getActivity());
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, generate_url_ville(city.name_url), null,
                 new Response.Listener<JSONObject>() {
@@ -160,7 +187,7 @@ public class FavorisFragment extends Fragment {
         city.tmp = tmp;
         city.icon = icon;
         return city;
-    }
+    }*/
 
     public String generate_url_ville(String ville) {
 

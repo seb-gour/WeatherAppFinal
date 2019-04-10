@@ -15,6 +15,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.miage.weatherapp.DTO.City_Favoris;
 import com.miage.weatherapp.DTO.DonneesMeteo;
 import com.miage.weatherapp.DTO.Fcst_day_0;
 import com.miage.weatherapp.DTO.Hour;
@@ -39,16 +41,14 @@ public class SwipeAdapter extends PagerAdapter {
     Context context;
     LayoutInflater layoutInflater;
     public ImageView addfav;
-    DonneesMeteo donneesMeteo ;
-    String ville;
     ArrayList<Fcst_day_0> donees;
-    ArrayList<Hour> list;
+    City_Favoris city;
 
-    public SwipeAdapter(Context context, ArrayList<Fcst_day_0> donnee) {
+    public SwipeAdapter(Context context, ArrayList<Fcst_day_0> donnee, City_Favoris fav) {
 
         this.context = context;
         this.donees=donnee;
-
+        this.city = fav;
     }
 
 
@@ -66,7 +66,7 @@ public class SwipeAdapter extends PagerAdapter {
 
     @NonNull
     @Override
-    public Object instantiateItem(@NonNull ViewGroup container, int position) {
+    public Object instantiateItem(@NonNull final ViewGroup container, int position) {
 
         layoutInflater=(LayoutInflater)context.getSystemService(context.LAYOUT_INFLATER_SERVICE);
         View view=layoutInflater.inflate(R.layout.page_layout,null);
@@ -75,9 +75,19 @@ public class SwipeAdapter extends PagerAdapter {
         TextView textView2=(TextView)view.findViewById(R.id.textView3);
         ImageView image =(ImageView)view.findViewById(R.id.imageView);
         ListView listView=(ListView)view.findViewById(R.id.listview);
-        this.addfav = (ImageView) view.findViewById(R.id.addfav);
-        //textView.setText(message[position]);
+        addfav = (ImageView) view.findViewById(R.id.addfavoris);
 
+        if(MainActivity.mAuth != null && city != null) {
+            addfav.setVisibility(View.VISIBLE);
+                addfav.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        FavorisFragment.addCityFavorisMeteo(context, city);
+                    }
+                });
+        } else {
+            addfav.setVisibility(View.INVISIBLE);
+        }
+        //textView.setText(message[position]);
 
 
         textView2.setText(donees.get(position).getDay_long());

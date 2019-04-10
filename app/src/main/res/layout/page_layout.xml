@@ -13,7 +13,7 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <ImageView
-            android:id="@+id/addfav"
+            android:id="@+id/addfavoris"
             android:layout_width="65dp"
             android:layout_height="49dp"
             android:layout_marginStart="8dp"

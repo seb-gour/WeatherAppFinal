@@ -42,7 +42,7 @@ public class ListViewFavorisAdapter extends ArrayAdapter<City_Favoris>{
         ville.setText(list.get(position).name);
         img.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                FavorisFragment.removeCityFavorisMeteo(list.get(position));
+                FavorisFragment.removeCityFavorisMeteo(getContext(), list.get(position));
             }
         });;
 

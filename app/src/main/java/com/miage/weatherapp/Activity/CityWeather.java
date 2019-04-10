@@ -26,6 +26,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.miage.weatherapp.DTO.City_Favoris;
 import com.miage.weatherapp.DTO.DonneesMeteo;
 import com.miage.weatherapp.R;
 
@@ -48,12 +49,9 @@ public class CityWeather extends Fragment {
     private double latitude;
     private String ville;
     private String pays;
-    private Context context=getContext();
-    private LocationListener locationListener;
     private LocationManager locationManager ;
     private SwipeAdapter swipeAdapter;
-    private ImageView addfav;
-    private ArrayList<DonneesMeteo> donnees;
+    private City_Favoris city;
 
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -66,15 +64,13 @@ public class CityWeather extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Bundle bundle = getArguments();
+
         if (bundle != null)
         {
             this.villeRecherche = bundle.getString("ville");
             this.villeRechercheafficher = bundle.getString("ville2");
 
         }
-
-        donnees =new ArrayList<DonneesMeteo>();
-
 
         try {
             place_Info();
@@ -83,8 +79,6 @@ public class CityWeather extends Fragment {
         }
 
         viewPager = (ViewPager) view.findViewById(R.id.view_pager);
-
-
 
         this.jsonParse();
     }
@@ -95,7 +89,7 @@ public class CityWeather extends Fragment {
         String url;
         if(villeRecherche == null || villeRecherche.isEmpty()) {
             try {
-
+                city = null;
                 this.set_Ville_Pays();
                 Toolbar mActionBarToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
                 mActionBarToolbar.setTitle(ville);
@@ -104,7 +98,7 @@ public class CityWeather extends Fragment {
             }
             url = generate_url_long_lat();
         } else {
-
+            city = new City_Favoris(villeRechercheafficher, villeRecherche);
             url = generate_url_ville(villeRecherche);
             Toolbar mActionBarToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
             mActionBarToolbar.setTitle(villeRechercheafficher);
@@ -117,14 +111,25 @@ public class CityWeather extends Fragment {
                         Log.i("*********", "onResponse: "+response);
                         donneesMeteo = new DonneesMeteo(response);
 
-                        swipeAdapter = new SwipeAdapter(getActivity(),donneesMeteo.getArray_fct());
+                        swipeAdapter = new SwipeAdapter(getActivity(),donneesMeteo.getArray_fct(), city);
+
                         viewPager.setAdapter(swipeAdapter);
+
+                        /*if(MainActivity.mAuth != null) {
+                            if (villeRecherche == null || villeRecherche.isEmpty()) {
+                                swipeAdapter.addfav.setVisibility(View.INVISIBLE);
+                            } else {
+                                swipeAdapter.addfav.setVisibility(View.VISIBLE);
+
+                                swipeAdapter.addfav.setOnClickListener(new View.OnClickListener() {
+                                    public void onClick(View v) {
+                                        FavorisFragment.addCityFavorisMeteo(villeRechercheafficher, villeRecherche);
+                                    }
+                                });
+                            }
+                        }*/
+
                         swipeAdapter.notifyDataSetChanged();
-                        if(villeRecherche == null || villeRecherche.isEmpty()){
-                            swipeAdapter.addfav.setVisibility(View.INVISIBLE);
-                        }else{
-                            swipeAdapter.addfav.setVisibility(View.VISIBLE);
-                        }
                     }
                 }, new Response.ErrorListener() {
             @Override

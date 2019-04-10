@@ -1,16 +1,10 @@
 package com.miage.weatherapp.Activity;
 
-import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +20,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.miage.weatherapp.DTO.List_cities;
 import com.miage.weatherapp.R;
 
 import org.json.JSONException;
