@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 public class FavorisFragment extends Fragment {
 
     public static Liste_Favoris favoris;
+    ValueEventListener favorisListener;
     ListView listView;
     ListViewFavorisAdapter adapter;
     private String tmp;
@@ -54,8 +56,25 @@ public class FavorisFragment extends Fragment {
 
         listView = (ListView) view.findViewById(R.id.listView);
 
-        updateListeFavoris();
-        createListViewFavoris();
+        if (MainActivity.mAuth.getCurrentUser() != null) {
+            favorisListener = new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    favoris = dataSnapshot.getValue(Liste_Favoris.class);
+                    createListViewFavoris();
+                    adapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    // Getting Post failed, log a message
+                    Log.w("TAG", "loadFavoris:onCancelled", databaseError.toException());
+                    // ...
+                }
+            };
+            MainActivity.mDatabase.addValueEventListener(favorisListener);
+
+        }
     }
 
     public void createListViewFavoris() {
@@ -66,6 +85,20 @@ public class FavorisFragment extends Fragment {
             }
             adapter = new ListViewFavorisAdapter(getContext(),0,city_list);
             listView.setAdapter(adapter);
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    CityWeather city = new CityWeather();
+                    final Bundle bundle = new Bundle();
+                    bundle.putString("ville",adapter.getList().get(position).name_url);
+                    bundle.putString("ville2",adapter.getList().get(position).name);
+                    city.setArguments(bundle);
+
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.content_frame, city).commit();
+                }
+            });
         }
     }
 
@@ -88,10 +121,10 @@ public class FavorisFragment extends Fragment {
         MainActivity.mDatabase.setValue(favoris);
     }
 
-    public static void removeCityFavorisMeteo(String city, String city_url) {
+    public static void removeCityFavorisMeteo(City_Favoris city) {
         int i = -1;
         for (City_Favoris city_fav:favoris.list) {
-            if(city_fav.name.equals(city) && city_fav.name_url.equals(city_url)) {
+            if(city_fav.name.equals(city.name) && city_fav.name_url.equals(city.name_url)) {
                 i = favoris.list.indexOf(city_fav);
             }
         };
