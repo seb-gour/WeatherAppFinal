@@ -38,14 +38,17 @@ import java.util.Locale;
 public class SwipeAdapter extends PagerAdapter {
     Context context;
     LayoutInflater layoutInflater;
+    public ImageView addfav;
     DonneesMeteo donneesMeteo ;
     String ville;
     ArrayList<Fcst_day_0> donees;
     ArrayList<Hour> list;
 
     public SwipeAdapter(Context context, ArrayList<Fcst_day_0> donnee) {
+
         this.context = context;
         this.donees=donnee;
+
     }
 
 
@@ -72,6 +75,7 @@ public class SwipeAdapter extends PagerAdapter {
         TextView textView2=(TextView)view.findViewById(R.id.textView3);
         ImageView image =(ImageView)view.findViewById(R.id.imageView);
         ListView listView=(ListView)view.findViewById(R.id.listview);
+        this.addfav = (ImageView) view.findViewById(R.id.addfav);
         //textView.setText(message[position]);
 
 

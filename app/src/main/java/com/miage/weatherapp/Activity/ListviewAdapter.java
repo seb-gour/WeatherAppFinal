@@ -36,6 +36,9 @@ public class ListviewAdapter extends ArrayAdapter<Hour>{
     }
 
 
+    public ImageView getImg() {
+        return img;
+    }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {

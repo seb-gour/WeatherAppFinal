@@ -9,6 +9,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -17,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -50,6 +52,7 @@ public class CityWeather extends Fragment {
     private LocationListener locationListener;
     private LocationManager locationManager ;
     private SwipeAdapter swipeAdapter;
+    private ImageView addfav;
     private ArrayList<DonneesMeteo> donnees;
 
 
@@ -82,6 +85,7 @@ public class CityWeather extends Fragment {
         viewPager = (ViewPager) view.findViewById(R.id.view_pager);
 
 
+
         this.jsonParse();
     }
 
@@ -91,6 +95,7 @@ public class CityWeather extends Fragment {
         String url;
         if(villeRecherche == null || villeRecherche.isEmpty()) {
             try {
+
                 this.set_Ville_Pays();
                 Toolbar mActionBarToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
                 mActionBarToolbar.setTitle(ville);
@@ -99,6 +104,7 @@ public class CityWeather extends Fragment {
             }
             url = generate_url_long_lat();
         } else {
+
             url = generate_url_ville(villeRecherche);
             Toolbar mActionBarToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
             mActionBarToolbar.setTitle(villeRechercheafficher);
@@ -111,11 +117,14 @@ public class CityWeather extends Fragment {
                         Log.i("*********", "onResponse: "+response);
                         donneesMeteo = new DonneesMeteo(response);
 
-
-
                         swipeAdapter = new SwipeAdapter(getActivity(),donneesMeteo.getArray_fct());
                         viewPager.setAdapter(swipeAdapter);
                         swipeAdapter.notifyDataSetChanged();
+                        if(villeRecherche == null || villeRecherche.isEmpty()){
+                            swipeAdapter.addfav.setVisibility(View.INVISIBLE);
+                        }else{
+                            swipeAdapter.addfav.setVisibility(View.VISIBLE);
+                        }
                     }
                 }, new Response.ErrorListener() {
             @Override
