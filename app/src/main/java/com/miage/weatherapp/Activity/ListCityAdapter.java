@@ -36,6 +36,10 @@ public class ListCityAdapter extends ArrayAdapter<City>{
         notifyDataSetChanged();
     }
 
+    public ArrayList<City> getList() {
+        return list;
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view;

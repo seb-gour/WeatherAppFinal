@@ -1,14 +1,21 @@
 package com.miage.weatherapp.Activity;
 
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SearchView;
@@ -48,16 +55,39 @@ public class RechercheFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        //a = (EditText) findViewById(R.id.editText);
+        cities=MainActivity.cities;
         searchView = view.findViewById(R.id.searchView);
-        //final SearchView.SearchAutoComplete searchAutoComplete = (SearchView.SearchAutoComplete)searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
+
         v =(ListView) view.findViewById(R.id.textv);
 
         mQ = Volley.newRequestQueue(getContext());
+        adapter = new ListCityAdapter(getContext(),0,cities.getCitys());
+        v.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
 
-        jsonParse("https://www.prevision-meteo.ch/services/json/list-cities");
+        //jsonParse("https://www.prevision-meteo.ch/services/json/list-cities");
 
+        v.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                searchView.clearFocus();
+                CityWeather city = new CityWeather ();
+                final Bundle bundle = new Bundle();
+                bundle.putString("ville",adapter.getList().get(position).getUrl());
+                bundle.putString("ville2",adapter.getList().get(position).getName());
+                city.setArguments(bundle);
+
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.content_frame, city).commit();
+
+                //adapter.getList().get(position).getUrl()
+                /*FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.content_frame, new CityWeather());
+                fragmentTransaction.commit();*/
+            }
+        });
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -77,32 +107,7 @@ public class RechercheFragment extends Fragment {
                 return false;
             }
         });
-        /*searchAutoComplete.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 
-                                                      @Override
-                                                      public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-
-                                                      }
-                                                  });*/
-
-
-/*        a.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                adapter.getFilter().filter(s);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });*/
     }
 
     private void makeUseOfNewLocation(Location location) {

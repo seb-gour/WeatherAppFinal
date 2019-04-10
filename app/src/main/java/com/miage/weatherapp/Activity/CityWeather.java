@@ -37,7 +37,8 @@ import java.util.Locale;
 
 public class CityWeather extends Fragment {
 
-    public static String villeRecherche;
+    public String villeRecherche;
+    public String villeRechercheafficher;
     private ViewPager viewPager;
     private String url;
     private DonneesMeteo donneesMeteo;
@@ -54,17 +55,22 @@ public class CityWeather extends Fragment {
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.activity_main_city, container, false);
+
     }
 
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Bundle bundle = getArguments();
+        if (bundle != null)
+        {
+            this.villeRecherche = bundle.getString("ville");
+            this.villeRechercheafficher = bundle.getString("ville2");
+
+        }
 
         donnees =new ArrayList<DonneesMeteo>();
-
-
-
 
 
         try {
@@ -76,17 +82,26 @@ public class CityWeather extends Fragment {
         viewPager = (ViewPager) view.findViewById(R.id.view_pager);
 
 
-        this.jsonParse(villeRecherche);
+        this.jsonParse();
     }
 
 
-    private void jsonParse(String villeRecherche) {
+    private void jsonParse() {
         RequestQueue mQ= Volley.newRequestQueue(getActivity());
         String url;
         if(villeRecherche == null || villeRecherche.isEmpty()) {
+            try {
+                this.set_Ville_Pays();
+                Toolbar mActionBarToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+                mActionBarToolbar.setTitle(ville);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             url = generate_url_long_lat();
         } else {
             url = generate_url_ville(villeRecherche);
+            Toolbar mActionBarToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+            mActionBarToolbar.setTitle(villeRechercheafficher);
         }
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
@@ -96,14 +111,7 @@ public class CityWeather extends Fragment {
                         Log.i("*********", "onResponse: "+response);
                         donneesMeteo = new DonneesMeteo(response);
 
-                        try {
-                            set_Ville_Pays();
 
-                            Toolbar mActionBarToolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
-                            mActionBarToolbar.setTitle(ville);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
 
                         swipeAdapter = new SwipeAdapter(getActivity(),donneesMeteo.getArray_fct());
                         viewPager.setAdapter(swipeAdapter);
@@ -163,6 +171,7 @@ public class CityWeather extends Fragment {
         this.latitude=location.getLatitude();
 
     }
+
 
     public String generate_url_long_lat() {
 
