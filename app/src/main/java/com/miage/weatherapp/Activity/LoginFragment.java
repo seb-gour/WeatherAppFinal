@@ -11,9 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -23,13 +21,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.database.FirebaseDatabase;
 import com.miage.weatherapp.R;
-
-import java.util.concurrent.Executor;
 
 public class LoginFragment extends Fragment {
     SignInButton sign_in_button;
@@ -57,7 +51,7 @@ public class LoginFragment extends Fragment {
 
         if (MainActivity.mAuth.getCurrentUser() != null) {
             FirebaseUser user = MainActivity.mAuth.getCurrentUser();
-            MainActivity.updateUI(user);
+            MainActivity.updateUIAndDatabase(user);
             goToFavorisFragment();
         }
     }
@@ -107,7 +101,7 @@ public class LoginFragment extends Fragment {
                             Log.d("TAG", "signInWithCredential:success");
 
                             FirebaseUser user = MainActivity.mAuth.getCurrentUser();
-                            MainActivity.updateUI(user);
+                            MainActivity.updateUIAndDatabase(user);
 
                             goToFavorisFragment();
                         } else {

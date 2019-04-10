@@ -35,6 +35,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.miage.weatherapp.R;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -98,7 +99,7 @@ public class MainActivity extends AppCompatActivity
 
         if (MainActivity.mAuth.getCurrentUser() != null) {
             FirebaseUser user = MainActivity.mAuth.getCurrentUser();
-            updateUI(user);
+            updateUIAndDatabase(user);
         }
 
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -220,7 +221,7 @@ public class MainActivity extends AppCompatActivity
                 new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        updateUI(null);
+                        updateUIAndDatabase(null);
                     }
                 });
     }
@@ -255,7 +256,7 @@ public class MainActivity extends AppCompatActivity
 
                             FirebaseUser user = MainActivity.mAuth.getCurrentUser();
 
-                            updateUI(user);
+                            updateUIAndDatabase(user);
                         } else {
 
                             Log.w("TAG", "signInWithCredential:failure", task.getException());
@@ -264,10 +265,12 @@ public class MainActivity extends AppCompatActivity
                 });
     }
 
-    public static void updateUI(FirebaseUser user) {
+    public static void updateUIAndDatabase(FirebaseUser user) {
         if (user != null) {
-            nom.setText(user.getDisplayName());
+            MainActivity.mDatabase = FirebaseDatabase.getInstance().getReference(MainActivity.mAuth.getUid());
+            FavorisFragment.updateListeFavoris();
 
+            nom.setText(user.getDisplayName());
             nom.setVisibility(View.VISIBLE);
             sign_out_button.setVisibility(View.VISIBLE);
             sign_in_button.setVisibility(View.INVISIBLE);

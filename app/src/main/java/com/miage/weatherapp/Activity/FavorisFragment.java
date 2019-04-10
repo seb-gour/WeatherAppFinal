@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -35,11 +36,12 @@ import java.util.ArrayList;
 
 public class FavorisFragment extends Fragment {
 
-    private DonneesMeteo donneesMeteo;
-    Liste_Favoris favoris;
+    public static Liste_Favoris favoris;
     ValueEventListener favorisListener;
     ListView listView;
     ListViewFavorisAdapter adapter;
+    private String tmp;
+    private String icon;
 
     @Nullable
     @Override
@@ -52,18 +54,14 @@ public class FavorisFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        favoris = new Liste_Favoris();
-
         listView = (ListView) view.findViewById(R.id.listView);
 
         if (MainActivity.mAuth.getCurrentUser() != null) {
-            MainActivity.mDatabase = FirebaseDatabase.getInstance().getReference(MainActivity.mAuth.getUid());
-
             favorisListener = new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     favoris = dataSnapshot.getValue(Liste_Favoris.class);
-                    createListViewFavoris(dataSnapshot);
+                    createListViewFavoris();
                     adapter.notifyDataSetChanged();
                 }
 
@@ -79,7 +77,7 @@ public class FavorisFragment extends Fragment {
         }
     }
 
-    public void createListViewFavoris(DataSnapshot dataSnapshot) {
+    public void createListViewFavoris() {
         if(favoris != null) {
             ArrayList<City_Favoris> city_list = new ArrayList<>();
             for (City_Favoris city: favoris.list) {
@@ -87,18 +85,46 @@ public class FavorisFragment extends Fragment {
             }
             adapter = new ListViewFavorisAdapter(getContext(),0,city_list);
             listView.setAdapter(adapter);
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    CityWeather city = new CityWeather();
+                    final Bundle bundle = new Bundle();
+                    bundle.putString("ville",adapter.getList().get(position).name_url);
+                    bundle.putString("ville2",adapter.getList().get(position).name);
+                    city.setArguments(bundle);
+
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.content_frame, city).commit();
+                }
+            });
         }
     }
 
-    public void addCityFavorisMeteo(String city, String city_url) {
-        this.favoris.list.add(new City_Favoris(city, city_url));
+    public static void updateListeFavoris() {
+        MainActivity.mDatabase.addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        favoris = dataSnapshot.getValue(Liste_Favoris.class);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                });
+    }
+
+    public static void addCityFavorisMeteo(String city, String city_url) {
+        favoris.list.add(new City_Favoris(city, city_url));
         MainActivity.mDatabase.setValue(favoris);
     }
 
-    public void removeCityFavorisMeteo(String city, String city_url) {
+    public static void removeCityFavorisMeteo(City_Favoris city) {
         int i = -1;
         for (City_Favoris city_fav:favoris.list) {
-            if(city_fav.name.equals(city) && city_fav.name_url.equals(city_url)) {
+            if(city_fav.name.equals(city.name) && city_fav.name_url.equals(city.name_url)) {
                 i = favoris.list.indexOf(city_fav);
             }
         };
@@ -109,20 +135,17 @@ public class FavorisFragment extends Fragment {
     }
 
     public City_Favoris getTempFromCityName(City_Favoris city) {
-        final City_Favoris new_city = city;
-        RequestQueue mQ= Volley.newRequestQueue(getContext());
-
-
+        RequestQueue mQ= Volley.newRequestQueue(getActivity());
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, generate_url_ville(city.name_url), null,
                 new Response.Listener<JSONObject>() {
 
                     @Override
                     public void onResponse(JSONObject response) {
                         Log.i("*********", "onResponse: "+response);
-                        donneesMeteo = new DonneesMeteo(response);
+                        DonneesMeteo donneesMeteo = new DonneesMeteo(response);
 
-                        new_city.tmp = String.valueOf(donneesMeteo.getCurrent_condition().getTmp());
-                        new_city.icon = donneesMeteo.getCurrent_condition().getIcon();
+                        tmp = String.valueOf(donneesMeteo.getCurrent_condition().getTmp());
+                        icon = donneesMeteo.getCurrent_condition().getIcon();
 
 
                     }
@@ -133,10 +156,10 @@ public class FavorisFragment extends Fragment {
             }
 
         });
-
         mQ.add(request);
-
-        return new_city;
+        city.tmp = tmp;
+        city.icon = icon;
+        return city;
     }
 
     public String generate_url_ville(String ville) {
